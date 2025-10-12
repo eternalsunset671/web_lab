@@ -2,17 +2,19 @@ from django.http import HttpResponse, Http404, HttpResponseNotFound
 from django.shortcuts import render
 from django.views import View
 
-
 def home_page(request):
+    '''представление, которое рендерит шаблон index.html.'''
     return render(request, 'university/index.html', {})
 
-
 class AboutView(View):
+    '''Class-Based Views для получения страницы О нас'''
     def get(self, request):
         return render(request, 'university/about.html', {})
 
-
 def student_profile(request, student_id):
+    '''представление, которое рендерит страницы шаблонов динамически 
+    для студентов с номерами от 1 до 100, иначе возвращает 404
+    и кнопки переходов между страницами студентов '''
     if student_id > 100 or student_id < 1:
         return render(request, 'university/not_found.html', status=404)
     context = {
@@ -26,6 +28,7 @@ def student_profile(request, student_id):
 
 
 class CourseListView(View):
+    '''Страница со списком курсов'''
     def get(self, request):
         courses = CourseView.COURSES
         context = {'courses': courses}
@@ -33,6 +36,7 @@ class CourseListView(View):
 
 
 class CourseView(View):
+    '''Страницы с курсами для динамической отрисовки'''
     COURSES = {
         'introduction-to-django': 'Введение в Django',
         'web-technologies': 'Веб-технологии',
@@ -47,5 +51,6 @@ class CourseView(View):
         return render(request, 'university/course.html', context)
     
 def custom_404(request, exception=None):
-        return render(request, 'university/not_found.html', status=404)
+    '''специанльная страница для ошибки 404'''
+    return render(request, 'university/not_found.html', status=404)
     
