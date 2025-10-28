@@ -1,14 +1,28 @@
-<!doctype html>
-<html lang="ru">
-<head>
-  <meta charset="utf-8">
-  <title>{{ title }}</title>
-</head>
-<body>
-  <h1>Курс: {{ title }}</h1>
-  <p>Slug: {{ course_slug }}</p>
+{% extends "university/base.html" %}
+{% block title %}{{ title.name }}{% endblock %}
+{% block content %}
+<h1>{{ title.name }}</h1>
 
-  <a href="/courses/">← Назад к списку курсов</a><br>
-  <a href="/">На главную</a>
-</body>
-</html>
+<p><strong>Уровень:</strong> {{ title.level }}</p>
+<p><strong>Продолжительность:</strong> {{ title.duration }} часов</p>
+<p><strong>Преподаватель:</strong> {{ title.instructor }}</p>
+<p><strong>Описание:</strong> {{ title.description }}</p>
+
+<hr>
+
+<nav>
+  {% if prev_slug %}
+    <a href="{% url 'course' course_slug=prev_slug %}">← Предыдущий курс</a>
+  {% endif %}
+
+  {% if next_slug %}
+    {% if prev_slug %} | {% endif %}
+    <a href="{% url 'course' course_slug=next_slug %}">Следующий курс →</a>
+  {% endif %}
+</nav>
+
+<hr>
+
+<a href="{% url 'courses' %}">← Назад к списку курсов</a><br>
+<a href="/">На главную</a>
+{% endblock %}

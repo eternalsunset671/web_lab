@@ -1,22 +1,22 @@
-<!doctype html>
-<html lang="ru">
-<head><meta charset="utf-8"><title>Студент {{ student_id }}</title></head>
-<body>
-  <h1>Профиль студента №{{ student_id }}</h1>
-  <p>Имя: {{ name }}</p>
-  <p>Группа: {{ group }}</p>
+{% extends "university/base.html" %}
+{% block title %}Студент {{ student_id }}{% endblock %}
+{% block content %}
+<h1>Профиль студента №{{ student_id }}</h1>
 
-  <div>
-    {% if prev_id %}
-      <a href="{% url 'student' student_id=prev_id %}">← Предыдущий</a>
-    {% endif %}
-    {% if next_id %}
-      <a href="{% url 'student' student_id=next_id %}">Следующий →</a>
-    {% endif %}
-  </div>
+<p><strong>Имя:</strong> {{ info }}</p>
+<p><strong>Факультет:</strong> {{ faculty }}</p>
+<p><strong>Статус:</strong> {{ status }}</p>
+<p><strong>Год обучения:</strong> {{ year }}</p>
 
-   <p><a href="{% url 'courses' %}">Посмотреть доступные курсы</a></p>
+<div>
+  {% if prev_id %}
+    <a href="{% url 'student' student_id=prev_id %}">← Предыдущий</a>
+  {% endif %}
+  {% if next_id %}
+    <a href="{% url 'student' student_id=next_id %}">Следующий →</a>
+  {% endif %}
+</div>
 
-  <a href="/">На главную</a>
-</body>
-</html>
+<p><a href="{% url 'courses' %}">Посмотреть доступные курсы</a></p>
+<a href="/">На главную</a>
+{% endblock %}
