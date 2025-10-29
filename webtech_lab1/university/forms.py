@@ -5,6 +5,11 @@ from .models import UserProfile
 
 
 class FeedbackForm(forms.Form):
+    '''
+    Класс для обработки формы обратной связи и валидации
+    1. Валидация имени
+    2. Валидации названия почты
+    '''
     name = forms.CharField(
         label='Имя',
         min_length=2,
@@ -42,6 +47,13 @@ class FeedbackForm(forms.Form):
 
 
 class RegistrationForm(forms.Form):
+    '''
+    Класс для обработки формы обратной связи и валидации
+    1. Валидация имени.
+    2. Валидации названия почты.
+    3. Валидации названия пароля.
+    4. Валидации при подтверждении пароля.
+    '''
     username = forms.CharField(
         label='Логин',
         min_length=3,
