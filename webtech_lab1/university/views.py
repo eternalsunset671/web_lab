@@ -1,22 +1,29 @@
 from django.shortcuts import render, redirect
 from django.views import View
 from django.http import Http404
-from .forms import FeedbackForm, RegistrationForm, LoginForm
-from .models import UserProfile
+from .forms import FeedbackForm, LoginForm, StudentRegistrationForm
 from django.contrib import messages
 from django.utils.html import escape
 from django.contrib.auth.hashers import make_password
-
-STUDENTS_DATA = {
-    1: {'info': 'Иван Петров', 'faculty': 'Кибербезопасность', 'status': 'Активный', 'year': 3},
-    2: {'info': 'Мария Сидорова', 'faculty': 'Информатика', 'status': 'Активный', 'year': 2},
-    3: {'info': 'Алексей Козлов', 'faculty': 'Программная инженерия', 'status': 'Выпускник', 'year': 5}
-}
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Student, Course, Instructor, Enrollment
+from .forms import EnrollmentForm
+from django.db import IntegrityError
 
 
 def home_page(request):
     '''представление, которое рендерит шаблон index.html.'''
-    return render(request, 'university/index.html', {})
+    total_students = Student.objects.filter(is_active=True).count()
+    total_courses = Course.objects.filter(is_active=True).count()
+    total_instructors = Instructor.objects.count()
+    recent_courses = Course.objects.filter(is_active=True).order_by('-created_at')[:3]
+    return render(request, 'university/index.html', {
+        'title': 'Главная',
+        'total_students': total_students,
+        'total_courses': total_courses,
+        'total_instructors': total_instructors,
+        'recent_courses': recent_courses
+    })
 
 
 class AboutView(View):
@@ -25,63 +32,33 @@ class AboutView(View):
         return render(request, 'university/about.html', {})
 
 
-def student_profile(request, student_id):
-    '''представление, которое рендерит страницы шаблонов динамически 
-    для студентов с номерами от 1 до 100, иначе возвращает 404
-    и кнопки переходов между страницами студентов '''
-    if student_id > 100 or student_id < 1 or student_id not in STUDENTS_DATA:
-        return render(request, 'university/not_found.html', status=404)
-    if student_id in STUDENTS_DATA:
-        student_data = STUDENTS_DATA[student_id]
-        return render(request, 'university/student.html', {
-            'student_id': student_id,
-            'info': student_data['info'],
-            'faculty': student_data['faculty'],
-            'status': student_data['status'],
-            'year': student_data['year'],
-            'prev_id': student_id - 1 if student_id > 1 else None,
-            'next_id': student_id + 1 if student_id < 100 else None,
-        })
-    else:
-        raise Http404("Студент с таким ID не найден")
+def student_profile(request, pk):
+    student = get_object_or_404(Student, pk=pk)
+    enrollments = student.enrollments.select_related('course')
+    return render(request, 'university/student_detail.html', {
+        'student': student,
+        'enrollments': enrollments
+    })
+
 
 class CourseListView(View):
     '''Страница со списком курсов'''
     def get(self, request):
-        courses = CourseView.COURSES
-        context = {'courses': courses}
-        return render(request, 'university/courses.html', context)
+        courses = Course.objects.filter(is_active=True).order_by('-created_at')
+        return render(request, 'university/courses.html', {'courses': courses})
 
 
 class CourseView(View):
     '''Страницы с курсами для динамической отрисовки'''
-    COURSES = {
-        'python-basics': {'name': 'Основы программирования на Python', 'duration': 36, 'description': 'Базовый курс...', 'instructor': 'Доцент Петров И.С.', 'level': 'Начальный'},
-        'web-security': {'name': 'Веб-безопасность', 'duration': 48, 'description': 'Курс по защите веб-приложений', 'instructor': 'Профессор Сидоров А.В.', 'level': 'Продвинутый'},
-        'network-defense': {'name': 'Защита сетей', 'duration': 42, 'description': 'Методы защиты сетей', 'instructor': 'Доцент Козлова М.П.', 'level': 'Средний'}
-    }
-    
     def get(self, request, course_slug):
-        course = self.COURSES.get(course_slug)
-        if not course:
-            raise Http404('Курс не найден')
-
-        # Список слагов в порядке определения
-        slugs = list(self.COURSES.keys())
-        index = slugs.index(course_slug)
-
-        # Определяем соседние курсы
-        prev_slug = slugs[index - 1] if index > 0 else None
-        next_slug = slugs[index + 1] if index < len(slugs) - 1 else None
-
-        context = {
-            'course_slug': course_slug,
-            'title': course,
-            'prev_slug': prev_slug,
-            'next_slug': next_slug,
-            'courses': self.COURSES
-        }
-        return render(request, 'university/course.html', context)
+        course = get_object_or_404(Course, slug=course_slug)
+        prev_course = Course.objects.filter(created_at__lt=course.created_at).order_by('-created_at').first()
+        next_course = Course.objects.filter(created_at__gt=course.created_at).order_by('created_at').first()
+        return render(request, 'university/course.html', {
+            'course': course,
+            'prev_course': prev_course,
+            'next_course': next_course
+        })
     
     
 def custom_404(request, exception=None):
@@ -103,16 +80,13 @@ def feedback_view(request):
 
 def register_view(request):
     if request.method == 'POST':
-        form = RegistrationForm(request.POST)
+        form = StudentRegistrationForm(request.POST)
         if form.is_valid():
-            data = form.cleaned_data
-            hashed_pw = make_password(data['password'])
-            user = UserProfile.objects.create(username=data['username'], email=data['email'], password=hashed_pw)
-            message = f"Пользователь {escape(user.username)} успешно зарегистрирован."
-            return render(request, 'university/success.html', {'title': 'Регистрация успешна', 'message': message})
+            student = form.save()
+            return render(request, 'university/success.html', {'message': 'Вы успешно зарегистрированы!', 'student': student})
     else:
-        form = RegistrationForm()
-    return render(request, 'university/register.html', {'form': form, 'title': 'Регистрация'})
+        form = StudentRegistrationForm()
+    return render(request, 'university/register.html', {'form': form})
 
 
 def login_view(request):
@@ -134,4 +108,23 @@ def login_view(request):
 
 def contact(request):
     return render(request, 'university/contact.html')
+
+
+def enroll_view(request):
+    if request.method == 'POST':
+        form = EnrollmentForm(request.POST)
+        if form.is_valid():
+            try:
+                form.save()
+                return render(request, 'university/success.html', {'message': 'Вы успешно записались на курс.'})
+            except IntegrityError:
+                form.add_error(None, 'Не удалось записать на курс (возможно уже есть запись).')
+    else:
+        form = EnrollmentForm()
+    return render(request, 'university/enrollment.html', {'form': form})
+
+
+def student_list(request):
+    students = Student.objects.filter(is_active=True).order_by('last_name')
+    return render(request, 'university/students.html', {'students': students})
 

@@ -1,12 +1,52 @@
 {% extends "university/base.html" %}
-{% block title %}Курсы{% endblock %}
-{% block content %}
-<h1>Список курсов</h1>
-<ul>
-  {% for slug, title in courses.items %}
-    <li><a href="{% url 'course' course_slug=slug %}">{{ title.name }}</a></li>
-  {% endfor %}
-</ul>
 
-<a href="/">На главную</a>
+{% block title %}Список курсов{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4 text-center">Список курсов</h1>
+
+    {% if courses %}
+    <table class="table table-bordered table-hover table-striped align-middle">
+        <thead class="table-dark text-center">
+            <tr>
+                <th>Название</th>
+                <th>Преподаватель</th>
+                <th>Длительность</th>
+                <th>Уровень</th>
+                <th>Подробнее</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for course in courses %}
+            <tr>
+                <td>{{ course.title }}</td>
+                <td class="text-center">
+                    {% if course.instructor %}
+                    {{ course.instructor.last_name }} {{ course.instructor.first_name }}
+                    {% else %}
+                    —
+                    {% endif %}
+                </td>
+                <td class="text-center">{{ course.duration }} ч.</td>
+                <td class="text-center">{{ course.get_level_display }}</td>
+                <td class="text-center">
+                    <a class="btn btn-sm btn-primary"
+                       href="{% url 'course' course.slug %}">
+                        Открыть
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% else %}
+    <p class="text-center text-muted">Курсы отсутствуют</p>
+    {% endif %}
+
+    <div class="text-start mt-3">
+        <a class="btn btn-secondary" href="/"> ← На главную </a>
+    </div>
+</div>
 {% endblock %}
