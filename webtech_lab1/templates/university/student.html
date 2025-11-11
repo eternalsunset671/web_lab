@@ -1,22 +1,17 @@
 {% extends "university/base.html" %}
-{% block title %}Студент {{ student_id }}{% endblock %}
+{% block title %}{{ student.full_name }}{% endblock %}
 {% block content %}
-<h1>Профиль студента №{{ student_id }}</h1>
+<h1>{{ student.full_name }}</h1>
+<p><strong>Email:</strong> {{ student.email }}</p>
+<p><strong>Факультет:</strong> {{ student.get_faculty_display }}</p>
+<p><strong>Год регистрации:</strong> {{ student.created_at }}</p>
 
-<p><strong>Имя:</strong> {{ info }}</p>
-<p><strong>Факультет:</strong> {{ faculty }}</p>
-<p><strong>Статус:</strong> {{ status }}</p>
-<p><strong>Год обучения:</strong> {{ year }}</p>
-
-<div>
-  {% if prev_id %}
-    <a href="{% url 'student' student_id=prev_id %}">← Предыдущий</a>
-  {% endif %}
-  {% if next_id %}
-    <a href="{% url 'student' student_id=next_id %}">Следующий →</a>
-  {% endif %}
-</div>
-
-<p><a href="{% url 'courses' %}">Посмотреть доступные курсы</a></p>
-<a href="/">На главную</a>
+<h3>Записи на курсы</h3>
+<ul>
+  {% for e in enrollments %}
+    <li>{{ e.course.title }} — {{ e.get_status_display }} ({{ e.created_at.date }})</li>
+  {% empty %}
+    <li>Нет записей</li>
+  {% endfor %}
+</ul>
 {% endblock %}
