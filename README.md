@@ -7,29 +7,15 @@
 ![alt text](lab_images/image1.png)
 
 
-### Форма для регистрации
-![alt text](lab_images/image2.png)
-
-![alt text](lab_images/image3.png)
-
-### Форма для входа
+### Страницы студентов показывают реальные данные из БД
 ![alt text](lab_images/image4.png)
 
-
-### Подменяем токен авторизации
-![alt text](lab_images/image6.png)
-
-
-### Ошибка при подмене токена
-![alt text](lab_images/image7.png)
+### Формы регистрации проверяют уникальность в БД
+![alt text](lab_images/image3.png)
 
 
-### Работающая валидация для обратной связи
-![alt text](lab_images/image5.png)
-
-
-### И при регистрации
-![alt text](lab_images/image8.png)
+### При регистрации пользователя его данные вносятся в БД и видимы в админке
+![alt text](lab_images/image2.png)
 
 
  
