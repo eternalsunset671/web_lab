@@ -3,19 +3,32 @@
 Козел Максим Владимирович
 С9121-10.05.01ммзи
 
-### Добавил форму для обработки обратной связи
+### student
 ![alt text](lab_images/image1.png)
 
 
-### Страницы студентов показывают реальные данные из БД
-![alt text](lab_images/image4.png)
+### teacher
+![alt text](lab_images/image2.png)
 
-### Формы регистрации проверяют уникальность в БД
+### admin
 ![alt text](lab_images/image3.png)
 
 
-### При регистрации пользователя его данные вносятся в БД и видимы в админке
-![alt text](lab_images/image2.png)
+### результат авторизации с корректными данными
+![alt text](lab_images/image1.png)
 
 
- 
+### результат авторизации с некорректными данными
+![alt text](lab_images/image5.png)
+
+
+### новые представления
+![alt text](lab_images/image6.png)
+
+
+### пароли хранимые в виде хешей
+![alt text](lab_images/image7.png)
+
+
+### после регистрации у пользователя по умолчанию создается профиль
+![alt text](lab_images/image1.png)

@@ -1,5 +1,27 @@
 from django.contrib import admin
-from .models import Student, Instructor, Course, Enrollment
+from .models import Student, Course, Enrollment, Instructor
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import User
+
+
+class StudentInline(admin.StackedInline):
+    model = Student
+    can_delete = False
+    verbose_name_plural = 'Student'
+
+
+class InstructorInline(admin.StackedInline):
+    model = Instructor
+    can_delete = False
+    verbose_name_plural = 'Instructor'
+
+
+class CustomUserAdmin(UserAdmin):
+    inlines = (StudentInline, InstructorInline)
+
+
+admin.site.unregister(User)
+admin.site.register(User, CustomUserAdmin)
 
 @admin.register(Instructor)
 class InstructorAdmin(admin.ModelAdmin):

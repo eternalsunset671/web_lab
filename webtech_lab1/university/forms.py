@@ -3,6 +3,9 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from .models import Student, Enrollment
 
+from django.contrib.auth.models import User
+from .models import Student, Course, Enrollment, Instructor
+
 
 class FeedbackForm(forms.Form):
     name = forms.CharField(
@@ -39,27 +42,51 @@ class LoginForm(forms.Form):
     )
 
 
-class StudentRegistrationForm(forms.ModelForm):
+class RegistrationForm(forms.Form):
+    username = forms.CharField(
+        max_length=50,
+        label='Логин',
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    first_name = forms.CharField(
+        max_length=100,
+        label='Имя',
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    last_name = forms.CharField(
+        max_length=100,
+        label='Фамилия',
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    email = forms.EmailField(
+        label='Email',
+        widget=forms.EmailInput(attrs={'class': 'form-control'})
+    )
     password = forms.CharField(
         label='Пароль',
-        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
-        min_length=8
+        widget=forms.PasswordInput(attrs={'class': 'form-control'})
     )
     password_confirm = forms.CharField(
         label='Подтверждение пароля',
         widget=forms.PasswordInput(attrs={'class': 'form-control'})
     )
+    role = forms.ChoiceField(
+        choices=[
+            ('student', 'Студент'),
+            ('instructor', 'Преподаватель'),
+        ],
+        label='Роль',
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
 
-    class Meta:
-        model = Student
-        fields = ['first_name', 'last_name', 'email', 'birth_date', 'faculty']
-        widgets = {
-            'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Имя'}),
-            'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Фамилия'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'you@example.com'}),
-            'birth_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'faculty': forms.Select(attrs={'class': 'form-select'}),
-        }
+
+    def clean_username(self):
+        username = self.cleaned_data['username']
+        if len(username.strip()) < 3:
+            raise ValidationError("Логин должен содержать минимум 3 символа")
+        if User.objects.filter(username=username).exists():
+            raise ValidationError("Это имя пользователя уже занято")
+        return username.strip()
 
     def clean_email(self):
         email = self.cleaned_data['email'].lower()
@@ -87,13 +114,42 @@ class EnrollmentForm(forms.ModelForm):
             'course': forms.Select(attrs={'class': 'form-select'}),
         }
 
-    def clean(self):
-        cleaned = super().clean()
-        student = cleaned.get("student")
-        course = cleaned.get("course")
+    def __init__(self, *args, **kwargs):
+        student = kwargs.pop('student', None)
+        super(EnrollmentForm, self).__init__(*args, **kwargs)
+        if student:
+            self.fields['course'].queryset = Course.objects.filter(is_active=True).exclude(enrollment__student=student)
+    
+    
+class GradeForm(forms.ModelForm):
+    class Meta:
+        model = Enrollment
+        fields = ['grade', 'status', 'completed_date']
+        widgets = {
+            'completed_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'status': forms.Select(attrs={'class': 'form-control'}),
+            'grade': forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'max': 5}),
+        }
 
-        if student and course:
-            if Enrollment.objects.filter(student=student, course=course).exists():
-                raise ValidationError("Студент уже записан на этот курс.")
 
-        return cleaned
+class StudentForm(forms.ModelForm):
+    class Meta:
+        model = Student
+        fields = ['first_name', 'last_name', 'birth_date', 'faculty', 'avatar', 'phone', 'description']
+        widgets = {
+            'birth_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'faculty': forms.Select(attrs={'class': 'form-control'}),
+            'avatar': forms.FileInput(attrs={'class': 'form-control-file'}),
+            'phone': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
+
+
+class CourseForm(forms.ModelForm):
+    class Meta:
+        model = Course
+        fields = ['title', 'description', 'duration', 'instructor', 'is_active']
+        widgets = {
+            'instructor': forms.Select(attrs={'class': 'form-control'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }

@@ -1,20 +1,16 @@
-{% extends "university/base.html" %}
-{% block title %}Успешно!{% endblock %}
-{% block content %}
+<div class="actions">
+    <a href="{% url 'home_page' %}" class="btn">На главную</a>
+    <a href="{% url 'contact' %}" class="btn btn-secondary">Контакты</a>
 
-<div class="success-container">
-    <h2>✅ Операция выполнена успешно!</h2>
+    {% if user.is_authenticated %}
+        
+        {% if user_role == 'student' %}
+            <a href="{% url 'student_dashboard' %}" class="btn btn-primary">Мой кабинет</a>
+        {% elif user_role == 'instructor' %}
+            <a href="{% url 'instructor_dashboard' %}" class="btn btn-primary">Кабинет преподавателя</a>
+        {% elif user_role == 'admin' %}
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-primary">Админ-панель</a>
+        {% endif %}
 
-    {% if message %}
-        <p>{{ message }}</p>
-    {% else %}
-        <p>Ваши данные были успешно отправлены. Спасибо!</p>
     {% endif %}
-
-    <div class="actions">
-        <a href="{% url 'home_page' %}" class="btn">На главную</a>
-        <a href="{% url 'contact' %}" class="btn btn-secondary">Контакты</a>
-    </div>
 </div>
-
-{% endblock %}
