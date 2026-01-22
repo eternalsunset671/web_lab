@@ -11,6 +11,6 @@
         <button type="submit">Записаться</button>
     </form>
 {% else %}
-    <p>Чтобы записаться на курс, необходимо <a href="{% url 'login' %}">войти</a> или <a href="{% url 'registration' %}">зарегистрироваться</a>.</p>
+    <p>Чтобы записаться на курс, необходимо <a href="{% url 'login' %}">войти</a> или <a href="{% url 'register' %}">зарегистрироваться</a>.</p>
 {% endif %}
 {% endblock %}
