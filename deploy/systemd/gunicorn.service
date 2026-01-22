@@ -10,13 +10,13 @@ Environment="DJANGO_ENV=production"
 Environment="PATH=/var/www/university/venv/bin"
 Environment="DJANGO_SECRET_KEY=YOUR_SECRET_KEY"
 Environment="DB_NAME=university_db"
-Environment="DB_USER=fefu_user"
-Environment="DB_PASSWORD=strong_password_here"
+Environment="DB_USER=university_db"
+Environment="DB_PASSWORD=maxim"
 Environment="DB_HOST=localhost"
 Environment="DB_PORT=5432"
 
-ExecStart=/var/www/university/venv/bin/gunicorn \
-    --config /var/www/university/deploy/gunicorn/config.py \
+ExecStart=/usr/bin/poetry run gunicorn \
+    --bind 127.0.0.1:8000
     webtech_lab1.wsgi:application
 
 Restart=on-failure
