@@ -6,7 +6,7 @@
 
 ### 1. Клонирование репозитория
 ```bash
-git clone https://github.com/eternalsunset671/data_generator.git
+git clone https://github.com/eternalsunset671/web_lab.git
 ```
 
 ### 2. Создание файла конфигурации для production на основе текущих переменных окружения
