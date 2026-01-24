@@ -2,5 +2,10 @@
 __pycache__/
 poetry.lock
 .env
+*.pyc
+.git
+.idea
+.vscode
+media
 .json
 .env.prod

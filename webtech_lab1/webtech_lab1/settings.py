@@ -28,7 +28,7 @@ DEBUG = os.environ.get('DEBUG', False)
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'replace-me-for-dev-only')
 
 # ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '127.0.0.1,192.168.149.154').split(',')
-ALLOWED_HOSTS =  ['192.168.149.154', 'localhost']
+ALLOWED_HOSTS = ['192.168.149.154', 'localhost']
 CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS").split(',')
 # Application definition
 
@@ -83,7 +83,7 @@ DATABASES = {
         'NAME': os.getenv('DB_NAME', 'university_db'),
         'USER': os.getenv('DB_USER', 'university_user'),
         'PASSWORD': os.getenv('DB_PASSWORD', 'password'),
-        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'HOST': os.getenv('DB_HOST', 'db'),
         'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
